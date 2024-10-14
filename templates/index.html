@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> <!-- Link to CSS file -->
+</head>
+<body>
+    <h1>Sentiment Analysis</h1>
+    <form action="/predict" method="POST">
+        <textarea name="text" rows="4" cols="50" placeholder="Enter your comment here..."></textarea>
+        <br><br>
+        <button type="submit">Analyze Sentiment</button>
+    </form>
+
+    <div id="result">
+        <div id="sentiment-result">
+            <span id="sentiment-text"></span>
+            <img id="sentiment-icon" src="" alt="" style="display: none;">
+        </div>
+    </div>
+
+    <script>
+        const form = document.querySelector('form');
+        form.onsubmit = async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+            const sentimentText = document.getElementById('sentiment-text');
+            const sentimentIcon = document.getElementById('sentiment-icon');
+
+            sentimentText.innerText = 'Sentiment: ' + result.sentiment;
+
+            // Update the icon based on sentiment
+            if (result.sentiment === 'positive') {
+                sentimentIcon.src = '{{ url_for("static", filename="icons/happy.png") }}'; // Happy icon path
+                sentimentIcon.alt = 'Happy Icon';
+            } else if (result.sentiment === 'negative') {
+                sentimentIcon.src = '{{ url_for("static", filename="icons/sad.png") }}'; // Sad icon path
+                sentimentIcon.alt = 'Sad Icon';
+            } else {
+                sentimentIcon.src = '{{ url_for("static", filename="icons/neutral.png") }}'; // Neutral icon path
+                sentimentIcon.alt = 'Neutral Icon';
+            }
+
+            sentimentIcon.style.display = 'inline'; // Show the icon
+        };
+    </script>
+</body>
+</html>
